@@ -20,6 +20,8 @@ import com.example.dh_desafiofluxit.model.User;
 import com.example.dh_desafiofluxit.model.UserResult;
 import com.example.dh_desafiofluxit.util.ResultListener;
 
+import java.util.ArrayList;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,10 +30,10 @@ public class MainFragment extends Fragment implements UserAdapter.UserAdapterLis
 
     private RecyclerView recyclerView;
     private FragmentMainBinding binding;
-    public static final String SEED = "asd";
-    public static final int CANTIDAD_PAGINAS = 10;
-    private int paginaActual = 1;
     private MainFragmentListener listener;
+    private Controller controller;
+    private UserAdapter adapter;
+    private LinearLayoutManager llm;
 
     public MainFragment() {
         // Required empty public constructor
@@ -46,25 +48,47 @@ public class MainFragment extends Fragment implements UserAdapter.UserAdapterLis
         View view = binding.getRoot();
 
         recyclerView = binding.fragmentMainRecyclerView;
-        Controller controller = new Controller();
-        controller.getUsers(20, null, 1, SEED, new ResultListener<UserResult>() {
-            @Override
-            public void onFinish(UserResult result) {
-                UserAdapter adapter = new UserAdapter(result.getResults(), MainFragment.this);
-                LinearLayoutManager llm = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
-                recyclerView.setAdapter(adapter);
-                recyclerView.setLayoutManager(llm);
-                Toast.makeText(getContext(), "Exito", Toast.LENGTH_SHORT).show();
-            }
+        controller = new Controller();
 
+        adapter = new UserAdapter(new ArrayList<User>(), MainFragment.this);
+        llm = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(llm);
+
+        addUsersToList();
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onError() {
-                Toast.makeText(getContext(), "Fallo", Toast.LENGTH_SHORT).show();
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                Integer posicionActualRecycler = llm.findLastVisibleItemPosition();
+                Integer ultimaPosicion = llm.getItemCount();
+
+                if(posicionActualRecycler.equals(ultimaPosicion - 4)){
+                    addUsersToList();
+                }
             }
         });
 
-
         return view;
+    }
+
+    private void addUsersToList() {
+        if(controller.getHayMasResultados()){
+            controller.getUsers(null, new ResultListener<UserResult>() {
+                @Override
+                public void onFinish(UserResult result) {
+                    adapter.addList(result.getResults());
+                    Toast.makeText(getContext(), "Cargando más resultados...", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onError() {
+                    Toast.makeText(getContext(), "Fallo", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     @Override

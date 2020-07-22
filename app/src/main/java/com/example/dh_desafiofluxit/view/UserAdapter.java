@@ -45,6 +45,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         return userList.size();
     }
 
+    public void addList(List<User> users){
+        this.userList.addAll(users);
+        notifyDataSetChanged();
+    }
+
+
+
     public class UserViewHolder extends RecyclerView.ViewHolder{
 
         private ImageView imagen;

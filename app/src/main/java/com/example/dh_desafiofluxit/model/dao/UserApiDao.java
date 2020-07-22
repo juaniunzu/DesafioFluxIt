@@ -20,8 +20,8 @@ public class UserApiDao extends DaoHelper{
         userService = retrofit.create(UserService.class);
     }
 
-    public void getUsers(int limit, String genero, int offset, String seed, final ResultListener<UserResult> listener){
-        userService.getUsers(limit, genero, offset, seed).enqueue(new Callback<UserResult>() {
+    public void getUsers(int limit, String genero, int paginaActual, String seed, final ResultListener<UserResult> listener){
+        userService.getUsers(limit, genero, paginaActual, seed).enqueue(new Callback<UserResult>() {
             @Override
             public void onResponse(Call<UserResult> call, Response<UserResult> response) {
                 listener.onFinish(response.body());

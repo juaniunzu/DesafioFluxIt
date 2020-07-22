@@ -8,16 +8,25 @@ import com.example.dh_desafiofluxit.util.ResultListener;
 public class Controller {
 
     private UserApiDao userApiDao;
+    public static final String SEED = "asd";
+    public static final int CANTIDAD_PAGINAS = 10;
+    public static final int LIMIT = 20;
+    private int paginaActual = 1;
+    private Boolean hayMasResultados = true;
 
     public Controller() {
         this.userApiDao = new UserApiDao();
     }
 
-    public void getUsers(int limit, String genero, int offset, String seed, final ResultListener<UserResult> listener){
-        userApiDao.getUsers(limit, genero, offset, seed, new ResultListener<UserResult>() {
+    public void getUsers(String genero, final ResultListener<UserResult> listener){
+        userApiDao.getUsers(LIMIT, genero, paginaActual, SEED, new ResultListener<UserResult>() {
             @Override
             public void onFinish(UserResult result) {
                 listener.onFinish(result);
+                paginaActual++;
+                if(paginaActual == CANTIDAD_PAGINAS){
+                    hayMasResultados = false;
+                }
             }
 
             @Override
@@ -25,5 +34,9 @@ public class Controller {
                 listener.onError();
             }
         });
+    }
+
+    public Boolean getHayMasResultados() {
+        return hayMasResultados;
     }
 }

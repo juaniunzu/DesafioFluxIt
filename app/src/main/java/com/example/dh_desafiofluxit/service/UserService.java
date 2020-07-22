@@ -11,7 +11,7 @@ public interface UserService {
     @GET("api/")
     Call<UserResult> getUsers(@Query("results") int limit,
                               @Query("gender") String genero,
-                              @Query("page") int offset,
+                              @Query("page") int paginaActual,
                               @Query("seed") String seed);
 
 
