@@ -50,7 +50,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         notifyDataSetChanged();
     }
 
+    public void updateList(List<User> users){
+        this.userList = users;
+        notifyDataSetChanged();
+    }
 
+    public List<User> getUserList() {
+        return userList;
+    }
 
     public class UserViewHolder extends RecyclerView.ViewHolder{
 
