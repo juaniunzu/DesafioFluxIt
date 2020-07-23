@@ -3,6 +3,8 @@ package com.example.dh_desafiofluxit.view;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -11,19 +13,26 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.dh_desafiofluxit.R;
-import com.example.dh_desafiofluxit.databinding.CeldaUserBinding;
 import com.example.dh_desafiofluxit.model.User;
 import com.example.dh_desafiofluxit.util.Utils;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
 
-@AllArgsConstructor
-public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
+public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> implements Filterable {
 
     private List<User> userList;
     private UserAdapterListener listener;
+    private List<User> userListCompleta;
+
+    public UserAdapter(List<User> userList, UserAdapterListener listener) {
+        this.userList = userList;
+        this.listener = listener;
+        this.userListCompleta = new ArrayList<>(userList);
+    }
 
     @NonNull
     @Override
@@ -52,12 +61,47 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
     public void updateList(List<User> users){
         this.userList = users;
+        this.userListCompleta = new ArrayList<>(userList);
         notifyDataSetChanged();
     }
 
     public List<User> getUserList() {
         return userList;
     }
+
+    @Override
+    public Filter getFilter() {
+        return filter;
+    }
+
+    Filter filter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            List<User> filteredUserList = new ArrayList<>();
+            if(constraint.toString().isEmpty()){
+                filteredUserList.addAll(userListCompleta);
+            } else {
+                for (User user : userListCompleta) {
+                    if(user.getName().getFirst().toLowerCase().contains(constraint.toString().toLowerCase()) ||
+                            user.getName().getLast().toLowerCase().contains(constraint.toString().toLowerCase())){
+                        filteredUserList.add(user);
+                    }
+                }
+            }
+
+            FilterResults filterResults = new FilterResults();
+            filterResults.values = filteredUserList;
+
+            return filterResults;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            userList.clear();
+            userList.addAll((Collection<? extends User>) results.values);
+            notifyDataSetChanged();
+        }
+    };
 
     public class UserViewHolder extends RecyclerView.ViewHolder{
 

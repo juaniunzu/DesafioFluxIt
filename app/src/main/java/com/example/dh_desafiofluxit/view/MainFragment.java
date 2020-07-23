@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,6 +22,7 @@ import com.example.dh_desafiofluxit.model.UserResult;
 import com.example.dh_desafiofluxit.util.ResultListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -34,6 +36,8 @@ public class MainFragment extends Fragment implements UserAdapter.UserAdapterLis
     private Controller controller;
     private UserAdapter adapter;
     private LinearLayoutManager llm;
+    private SearchView searchText;
+    private List<User> users;
 
     public MainFragment() {
         // Required empty public constructor
@@ -48,7 +52,10 @@ public class MainFragment extends Fragment implements UserAdapter.UserAdapterLis
         View view = binding.getRoot();
 
         recyclerView = binding.fragmentMainRecyclerView;
+        searchText = binding.fragmentMainSearchView;
         controller = new Controller();
+        users = new ArrayList<>();
+
 
         adapter = new UserAdapter(new ArrayList<User>(), MainFragment.this);
         llm = new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false);
@@ -71,6 +78,21 @@ public class MainFragment extends Fragment implements UserAdapter.UserAdapterLis
             }
         });
 
+        searchText.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.getFilter().filter(newText);
+                return false;
+            }
+        });
+
+
+
         return view;
     }
 
@@ -79,7 +101,8 @@ public class MainFragment extends Fragment implements UserAdapter.UserAdapterLis
             controller.getUsers(null, new ResultListener<UserResult>() {
                 @Override
                 public void onFinish(UserResult result) {
-                    adapter.addList(result.getResults());
+                    users.addAll(result.getResults());
+                    adapter.updateList(users);
                     Toast.makeText(getContext(), "Cargando más resultados...", Toast.LENGTH_SHORT).show();
                 }
 
